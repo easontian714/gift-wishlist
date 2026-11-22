@@ -536,7 +536,7 @@ $('generateInvite').onclick=()=>{
   const invite=$('inviteText');
   invite.value=[
     '来心愿簿和我一起记礼物吧！',
-    siteRoot.href,
+    'https://easontian714.github.io/gift-wishlist/',
     '打开网页后用 Google 登录，点「寻找搭子」或「新增绑定」，输入我的配对 ID '+code+'，再发送邀请。'
   ].join('\n');
   $('profileInvite').hidden=false;
