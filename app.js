@@ -131,7 +131,7 @@ async function refresh(){
   render();
 }
 function render(){
-  $('intro').textContent=activePair?'每份清单只对已配对的两个人可见。':'';
+  $('intro').textContent='';
   $('add').disabled=!activePair;$('tabs').hidden=!activePair;
   $('pairModule').hidden=!activePair;
   $('emptyPairs').hidden=Boolean(activePair);
