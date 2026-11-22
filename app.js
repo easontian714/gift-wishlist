@@ -114,7 +114,9 @@ async function refresh(){
   if(version!==refreshId||current!==activePair)return;
   wishes=withCovers;
   $('startPair').textContent=invites.length?'查看邀请 · '+invites.length:'寻找搭子';
-  $('pair').textContent=invites.length?'新增绑定 · '+invites.length+' 个邀请':'新增绑定';
+  $('pair').textContent=invites.length?'查看邀请 · '+invites.length:'新增绑定';
+  $('pairManagementTitle').textContent=invites.length?'配对管理 · '+invites.length+' 个邀请':'配对管理';
+  $('profile').textContent=activePair&&invites.length?'编辑资料 · '+invites.length+' 个邀请':'编辑资料';
   $('invites').replaceChildren(...(invites.length?invites.map(i=>{
     const item=document.createElement('div');item.className='invite';
     const who=document.createElement('span');who.textContent=(people.get(i.sender)?.name||'对方')+' 邀请与你配对 ';
@@ -135,7 +137,6 @@ function render(){
   $('add').disabled=!activePair;$('tabs').hidden=!activePair;
   $('pairModule').hidden=!activePair;
   $('emptyPairs').hidden=Boolean(activePair);
-  $('workspaceToolbar').hidden=!activePair;
   if(!activePair){$('lists').replaceChildren();return}
   const pair=pairs.find(item=>item.id===activePair);
   $('pairTitle').replaceChildren(profileLabel(people.get(partnerId(pair)),'对方','我和 '));
