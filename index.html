@@ -157,13 +157,6 @@ textarea{min-height:76px}
 .detail-source{font-size:.875rem}
 .screenshot-field{margin:12px 0}
 .screenshot-label{display:block;margin-bottom:4px}
-.screenshot-box{border:1px dashed #aab9ae;border-radius:8px;padding:4px;background:var(--canvas)}
-.screenshot-box.drag-over{border-color:var(--accent);background:var(--soft)}
-.screenshot-target{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:74px;border:0;background:transparent;text-align:center}
-.screenshot-target strong,.screenshot-target small{display:block}
-.screenshot-target small{margin-top:4px}
-.screenshot-target img{flex:none;width:54px;height:54px;object-fit:contain;border-radius:5px;background:#fff}
-#removeScreenshot{display:block;margin:0 auto 3px;font-size:.875rem;min-height:34px}
 #photoStatus:empty,#coverStatus:empty{display:none}
 .profile-panel{padding:14px;border:1px solid var(--line);border-radius:10px;margin-top:12px}
 .profile-pair-row{display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap}
@@ -180,6 +173,19 @@ textarea{min-height:76px}
 .screenshot-thumb img{width:100%;height:100%;object-fit:cover}
 .screenshot-remove{position:absolute;right:3px;top:3px;display:grid;place-items:center;width:26px;height:26px;min-height:26px;padding:0;border-radius:50%;font-size:1rem}
 #largeScreenshot{display:block;max-width:100%;max-height:65dvh;object-fit:contain;margin:auto}
+
+.screenshot-box{border:1px solid #aab9ae;border-radius:8px;overflow:hidden;background:var(--surface)}
+.screenshot-box:focus-within,.screenshot-box.drag-over{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+#screenshotPaste{border:0;margin:0;border-radius:0;min-height:64px;resize:none;padding:10px;cursor:text}
+#screenshotPaste:focus-visible{outline:none}
+.screenshot-tools{display:flex;align-items:center;gap:10px;padding:7px 9px;border-top:1px solid var(--line)}
+.screenshot-tools button{min-height:36px}
+@media(max-width:650px),(pointer:coarse){
+  #screenshotPaste{display:none}
+  .screenshot-box{border:0;background:transparent;overflow:visible}
+  .screenshot-tools{border:0;padding:0}
+  .screenshot-box:focus-within{box-shadow:none}
+}
 </style>
 <main><header><div class="brand">心愿簿</div><div class="tools account-controls"><div class="account-summary" id="accountSummary" hidden><div id="accountAvatar" class="avatar avatar-fallback" aria-hidden="true">?</div><div><strong id="accountName"></strong><small id="accountId" hidden></small><small class="current-account" id="currentAccount"></small></div></div><div class="profile-actions"><button id="login" class="primary" hidden>用 Google 登录</button><button id="profile" hidden>编辑资料</button><button id="signout" hidden>退出</button></div></div></header>
 <div class="hero"><h1>把心动记下来，把惊喜留给以后。</h1><p id="intro">正在连接清单…</p></div>
@@ -219,9 +225,8 @@ textarea{min-height:76px}
   <input name="image" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden>
   <ul id="screenshotList" class="screenshot-list" aria-label="已添加的截图" hidden></ul>
   <div class="screenshot-box" id="screenshotBox">
-    <button type="button" class="screenshot-target" id="chooseScreenshot" aria-labelledby="screenshotLabel screenshotAction" aria-describedby="screenshotHint">
-      <span><strong id="screenshotAction">粘贴截图到这里</strong><small id="screenshotHint">按 Ctrl / ⌘ + V，或点击选择多张</small></span>
-    </button>
+    <textarea id="screenshotPaste" rows="2" inputmode="none" aria-label="粘贴截图" placeholder="点这里，按 Ctrl / ⌘ + V 粘贴截图"></textarea>
+    <div class="screenshot-tools"><button type="button" id="chooseScreenshot">上传图片</button><small id="screenshotCount"></small></div>
   </div>
   <p id="photoStatus" class="editor-hint" role="status"></p>
 </div></section>
@@ -231,4 +236,4 @@ textarea{min-height:76px}
 <p id="editStatus" role="status"></p>
 <section id="draft" class="editor-review" aria-labelledby="draftHeading" hidden>
 <h3 id="draftHeading" tabindex="-1"><span class="editor-step">Step 2</span> 确认礼物信息</h3><p class="editor-hint">检查结果，按需修改，再保存愿望。</p><div class="cover-picker"><h4>商品主图</h4><div class="row"><img id="cover" class="cover-preview" alt="已选商品主图" hidden referrerpolicy="no-referrer"><div id="placeholder" class="cover-empty">暂无主图</div><div class="cover-picker-controls"><div id="coverOptions" class="cover-options" role="group" aria-label="选择商品主图"></div><button type="button" id="retry">再找一组</button></div></div><small id="coverStatus" role="status"></small></div><label>礼物名称<input name="title" required maxlength="200"></label><label>款式偏好<select name="preference" required><option value="" disabled selected>请选择款式偏好</option><option>就要这款</option><option>类似也行</option></select></label><div class="price-fields"><label>币种<select name="quote_currency"><option value="GBP">英镑（£）</option><option value="USD">美元（US$）</option><option value="CNY">人民币（¥）</option><option value="HKD">港币（HK$）</option></select></label><label>大概价格<input name="quote_amount" type="number" min="0" step=".01" inputmode="decimal" placeholder="选填"></label></div><small id="quoteSource" hidden></small><output id="fxNote" aria-live="polite" hidden></output><label>推荐渠道<input name="channel" maxlength="300"></label><small id="channelSource" hidden></small><label>备注（选填）<textarea name="notes" maxlength="2000" placeholder="写下购买时要留意的事"></textarea></label></section></div><div class="editor-actions" id="editorActions" hidden><button class="primary" id="save">保存愿望</button></div></form></dialog>
-<dialog id="screenshotViewer" aria-labelledby="screenshotViewerTitle"><div class="bar"><h2 id="screenshotViewerTitle">截图预览</h2><button type="button" data-close>关闭</button></div><img id="largeScreenshot" alt="录入截图"></dialog><dialog id="detail" aria-labelledby="detailTitle"></dialog><script type="module" src="./app.js?v=aa21be462fc9"></script>
+<dialog id="screenshotViewer" aria-labelledby="screenshotViewerTitle"><div class="bar"><h2 id="screenshotViewerTitle">截图预览</h2><button type="button" data-close>关闭</button></div><img id="largeScreenshot" alt="录入截图"></dialog><dialog id="detail" aria-labelledby="detailTitle"></dialog><script type="module" src="./app.js?v=4411d5036930"></script>

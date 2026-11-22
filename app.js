@@ -268,8 +268,7 @@ function renderScreenshots(){
     };
     tile.append(view,remove);return tile;
   }));
-  $('screenshotAction').textContent=screenshots.length?'继续添加截图':'粘贴截图到这里';
-  $('screenshotHint').textContent=screenshots.length?screenshots.length+' / '+maxScreenshots+' 张 · 可继续粘贴或选择':'按 Ctrl / ⌘ + V，或点击选择多张';
+  $('screenshotCount').textContent=screenshots.length?screenshots.length+' / '+maxScreenshots+' 张':'';
 }
 function loadSavedScreenshots(wish){
   clearScreenshotPreviews();
@@ -309,7 +308,11 @@ editor.onpaste=e=>{
   const files=[...(data?.files||[])].filter(file=>file.type.startsWith('image/'));
   const images=files.length?files:[...(data?.items||[])].filter(item=>item.type.startsWith('image/')).map(item=>item.getAsFile()).filter(Boolean);
   if(images.length){e.preventDefault();addScreenshots(images)}
+  else if(e.target===$('screenshotPaste')){
+    e.preventDefault();$('photoStatus').textContent='这里接收图片。请先复制截图，再粘贴到这里。';
+  }
 };
+$('screenshotPaste').addEventListener('beforeinput',event=>event.preventDefault());
 const screenshotBox=$('screenshotBox');
 screenshotBox.addEventListener('dragover',event=>{
   if(event.dataTransfer?.types.includes('Files')){
