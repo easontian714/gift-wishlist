@@ -48,7 +48,7 @@ async function loadFx(){
     updateFx();
   }catch{}
 }
-let quoteSource='', quoteKind='', channelUrl='', currencyEdited=false;
+let quoteSource='', quoteKind='', channelUrl='', currencyEdited=false, pendingInvites=0;
 function defaultCurrency(link){
   const normalized=url(link);
   if(!normalized)return 'GBP';
@@ -90,6 +90,16 @@ async function attachCoverLinks(rows){
   }
   return rows.map(w=>({...w,cover_preview:w.cover_path?coverLinks.get(w.cover_path)?.url||'':w.cover}));
 }
+function updateInviteIndicator(count){
+  const dot=$('profileInviteDot');
+  dot.hidden=count===0;
+  dot.textContent=count>9?'9+':String(count);
+  $('profile').setAttribute('aria-label',count?'编辑资料，'+count+' 个待处理邀请':'编辑资料');
+  if(count!==pendingInvites){
+    $('inviteAnnouncement').textContent=count?'收到 '+count+' 个待处理配对邀请。':'没有待处理的配对邀请。';
+    pendingInvites=count;
+  }
+}
 async function refresh(){
   if(!session)return;
   const version=++refreshId, user=session.user.id;
@@ -116,7 +126,7 @@ async function refresh(){
   $('startPair').textContent=invites.length?'查看邀请 · '+invites.length:'寻找搭子';
   $('pair').textContent=invites.length?'查看邀请 · '+invites.length:'新增绑定';
   $('pairManagementTitle').textContent=invites.length?'配对管理 · '+invites.length+' 个邀请':'配对管理';
-  $('profile').textContent=activePair&&invites.length?'编辑资料 · '+invites.length+' 个邀请':'编辑资料';
+  updateInviteIndicator(invites.length);
   $('invites').replaceChildren(...(invites.length?invites.map(i=>{
     const item=document.createElement('div');item.className='invite';
     const who=document.createElement('span');who.textContent=(people.get(i.sender)?.name||'对方')+' 邀请与你配对 ';
@@ -560,7 +570,8 @@ $('profile').onclick=()=>{
   draftStyle=people.get(session.user.id)?.avatar_style??0;showAvatarDraft();
   $('profileStatus').textContent='';$('profileShareStatus').textContent='';
   $('profileInvite').hidden=true;$('generateInvite').setAttribute('aria-expanded','false');
-  $('pairManagement').open=false;renderPairManagement();$('profileDialog').showModal();
+  $('pairManagement').open=pendingInvites>0;renderPairManagement();$('profileDialog').showModal();
+  if(pendingInvites)$('pair').scrollIntoView({block:'nearest'});
 };
 $('profileForm').onsubmit=e=>{
   e.preventDefault();const form=e.currentTarget;
